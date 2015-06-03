@@ -42,20 +42,40 @@ public class Memory {
 		}
 	}
 	
+	/*  Programs may also refer to a group of sprites representing the hexadecimal digits 0 through F.
+	 *  These sprites are 5 bytes long, or 8x5 pixels. The data should be stored in the interpreter 
+	 *  area of Chip-8 memory (0x000 to 0x1FF). 
+	 */
 	public void initializeInterpreterBuffer(){
-				// 0                                    
+				// 0
+/*
+"0"	          Binary	Hex
+****          11110000  0xF0
+*  *          10010000  0x90
+*  *          10010000  0x90
+*  *          10010000  0x90
+****          11110000  0xF0
+*/
 				m_memoryBuffer[0] = (byte)0xF0;     
 				m_memoryBuffer[1] = (byte)0x10;     
 				m_memoryBuffer[2] = (byte)0xF0;     
 				m_memoryBuffer[3] = (byte)0x80;     
 				m_memoryBuffer[4] = (byte)0xF0;     
-				// 1                                
+				// 1
+/*
+ *  
+  * 
+ ** 
+  * 
+  * 
+ ****/
 				m_memoryBuffer[5] = (byte)0x20;     
 				m_memoryBuffer[6] = (byte)0x60;     
 				m_memoryBuffer[7] = (byte)0x20;     
 				m_memoryBuffer[8] = (byte)0x20;     
 				m_memoryBuffer[9] = (byte)0x70;     
-				// 2                                
+				// 2   
+				/*more detail please reference http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#memmap*/
 				m_memoryBuffer[10] = (byte)0xF0;    
 				m_memoryBuffer[11] = (byte)0x10;    
 				m_memoryBuffer[12] = (byte)0xF0;    
