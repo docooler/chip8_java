@@ -6,8 +6,8 @@ import java.util.Random;
 
 public class Cpu {
 	 Memory m_memory;
-	 Display m_display;
-	 KeyBoard m_keyBoard;
+	 IDisplay m_display;
+	 IKeyBoard m_keyBoard;
 	 DelayTimer m_delayTimer;
 	 DelayTimer m_soundTimer;
 	 InstructionRun[] m_instructionSet;
@@ -24,7 +24,7 @@ public class Cpu {
 	
 	
 	
-	public Cpu(Memory memory, Display display, KeyBoard keyBoard){
+	public Cpu(Memory memory, IDisplay display, IKeyBoard keyBoard){
 
 		//chip8
 		m_memory = memory;

@@ -1,4 +1,6 @@
-package Chip8;
+package GameEngine;
+
+import Chip8.IKeyBoard;
 
 public class KeyBoard implements IKeyBoard {
 	private byte m_value;
@@ -23,3 +25,4 @@ public class KeyBoard implements IKeyBoard {
 		return m_value == key;
 	}
 }
+

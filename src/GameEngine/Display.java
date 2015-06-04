@@ -1,10 +1,10 @@
 package GameEngine;
 
-import Chip8.Display;
-public class JDisplay implements Display {
+import Chip8.IDisplay;
+public class Display implements IDisplay {
 	static int SCREEN_SIZE = 256;
 	byte [] m_screen;
-	public JDisplay(){
+	public Display(){
 		m_screen = new byte[SCREEN_SIZE];
 		
 	}

@@ -3,13 +3,13 @@ import Chip8.*;
 public class Machine {
 	Memory m_memory;
 	Cpu    m_cpu;
-	Display m_display;
-	KeyBoard m_keyboard;
+	IDisplay m_display;
+	IKeyBoard m_keyboard;
 	Load m_load; 
 	
 	public Machine(){
 		m_memory = new Memory();
-		m_display = new JDisplay();
+		m_display = new Display();
 		m_keyboard = new KeyBoard();
 		m_load    = new Load(); 
 		
