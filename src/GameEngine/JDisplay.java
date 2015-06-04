@@ -8,11 +8,11 @@ public class JDisplay implements Display {
 		m_screen = new byte[SCREEN_SIZE];
 		
 	}
-	public byte getScreen(byte index)
-	{
+	public byte getScreen(int index)
+	{	
 		return m_screen[index];
 	}
-	public void setScreen(byte index, byte value)
+	public void setScreen(int index, byte value)
 	{
 		m_screen[index] = value;
 	}

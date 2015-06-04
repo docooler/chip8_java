@@ -117,10 +117,16 @@ public class Cpu {
 		byte hi =  m_memory.getValue(m_PC++);
 		byte lo = m_memory.getValue(m_PC++);
 		
-		//System.out.printf("hi : %x lo : %x", (int)hi, (int)lo);
+		//if we shift with the flag. byte will change to other things.
+		int cHi = Byte.toUnsignedInt(hi);
+		int cLo = Byte.toUnsignedInt(lo);
 		
-		char instruction = (char)((int)hi << 8);
-		instruction |= lo;
+		
+		
+		char instruction = (char)((cHi&0xff) << 8);
+		instruction |= cLo;
+		
+		System.out.printf("m_PC : 0x%4x, instruction : 0x%4x\n", m_PC-2, (int)instruction);
 		return instruction;
 	}
 }
@@ -179,7 +185,7 @@ class InsJP implements InstructionRun {
  * 2NNN	Calls subroutine at NNN.*/
 class InsCALL implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
-		cpu.m_stack.push(instruction);
+		cpu.m_stack.push(cpu.m_PC);
 		cpu.m_PC = ParserFunctions.GetAddress(instruction);
 		return false; 
 	}
@@ -374,7 +380,7 @@ class InsDRW implements InstructionRun {
 		cpu.m_display.print();
 		return false; 
 	}
-	private byte setByteAndDetectCollision(Cpu cpu, byte index, byte value){
+	private byte setByteAndDetectCollision(Cpu cpu, int index, byte value){
 		byte collision = 0;
 		value = (byte)(((value * 0x0802 & 0x22110) | (value * 0x8020 & 0x88440)) * 0x10101 >> 16); 
 		byte originValue = cpu.m_display.getScreen(index);
@@ -398,11 +404,11 @@ class InsDRW implements InstructionRun {
 				row -= 32;
 
 			if(bitPos > 0) {
-			    collision = setByteAndDetectCollision(cpu, (byte)(row * 8 + bytePos), (byte)(sprites[spriteRow] >> bitPos));
+			    collision = setByteAndDetectCollision(cpu, (row * 8 + bytePos), (byte)(sprites[spriteRow] >> bitPos));
 				byte byteToSet = (bytePos + 1 < 8) ? (byte)(bytePos + 1) : 0; 
-				collision |= setByteAndDetectCollision(cpu, (byte)(row * 8 + byteToSet), (byte)(sprites[spriteRow] << (8 - bitPos)));
+				collision |= setByteAndDetectCollision(cpu, (row * 8 + byteToSet), (byte)(sprites[spriteRow] << (8 - bitPos)));
 			} else {
-				collision = setByteAndDetectCollision(cpu, (byte)(row * 8 + bytePos), sprites[spriteRow]);
+				collision = setByteAndDetectCollision(cpu, (row * 8 + bytePos), sprites[spriteRow]);
 			}
 		}
 		return collision;

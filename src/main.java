@@ -14,7 +14,7 @@ public class main {
 			System.out.println("Error : loadGame");
 			return;
 		}
-	    boolean debug = true;
+	    boolean debug = false;
 		if(debug){
 			machine.debug();
 		}

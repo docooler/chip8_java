@@ -43,10 +43,10 @@ public class Machine {
 				System.out.println("System quit");
 				break;
 			}
-			if (testCount == 100){
-				System.out.println("run 100 times quit");
-				return;
-			}
+//			if (testCount == 100){
+//				System.out.println("run 100 times quit");
+//				return;
+//			}
 		}
 	}
 	

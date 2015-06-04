@@ -147,7 +147,4 @@ public class Memory {
 				m_memoryBuffer[78] = (byte)0x80;    
 				m_memoryBuffer[79] = (byte)0x80;    
 	}
-	
-	
-	
 }
