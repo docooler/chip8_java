@@ -1,4 +1,4 @@
-package chip8;
+package Chip8;
 
 import java.util.Stack;
 import java.util.Random;
@@ -20,6 +20,7 @@ public class Cpu {
 	 boolean m_quit = false;
 	 
 	 Random m_random;
+	 
 	
 	
 	
@@ -42,6 +43,25 @@ public class Cpu {
 		initInstructionFunc();
 	}
 	
+	public void printRegister(){
+		System.out.println("Register:");
+		
+		for(int i = 0; i < 0xf; i++){
+			if(i%4==0){
+				System.out.print("\n");
+			}
+			System.out.printf("Reg%2d   :   %x    ", i, (int)m_register[i]);
+		}
+		System.out.print("\n");
+		System.out.printf("PC   :   %2x\n", (int)m_PC);
+		System.out.printf("I    :   %2x\n", (int)m_I);
+	}
+	
+	public char getPC(){
+		return m_PC;
+	}
+	
+
 	public byte GenRandom(){
 		return (byte)m_random.nextInt(256);
 	}
@@ -79,11 +99,13 @@ public class Cpu {
 		return true;
 	}
 	
-	public void clock(){
+	public void updateTimer(){
 		m_delayTimer.Tick();
 		m_soundTimer.Tick();
-		
+	}
+	public boolean clock(){
 		cycleRun();
+		return m_quit;
 	}
 	private synchronized  void cycleRun(){
 		char instruction = getNextInstruction();
@@ -94,6 +116,8 @@ public class Cpu {
 	private char getNextInstruction(){
 		byte hi =  m_memory.getValue(m_PC++);
 		byte lo = m_memory.getValue(m_PC++);
+		
+		//System.out.printf("hi : %x lo : %x", (int)hi, (int)lo);
 		
 		char instruction = (char)((int)hi << 8);
 		instruction |= lo;
@@ -320,7 +344,18 @@ class InsRND implements InstructionRun {
 /*DXYN	Sprites stored in memory at location in index register (I), 
  * maximum 8bits wide. Wraps around the screen. If when drawn, 
  * clears a pixel, register VF is set to 1 otherwise it is zero. 
- * All drawing is XOR drawing (i.e. it toggles the screen pixels)*/
+ * All drawing is XOR drawing (i.e. it toggles the screen pixels)
+ * 
+ * Dxyn - DRW Vx, Vy, nibble
+Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+
+The interpreter reads n bytes from memory, starting at the address stored in I. 
+These bytes are then displayed as sprites on screen at coordinates (Vx, Vy). 
+Sprites are XORed onto the existing screen. If this causes any pixels to be erased, 
+VF is set to 1, otherwise it is set to 0. If the sprite is positioned so part of it
+is outside the coordinates of the display, it wraps around to the opposite side of
+the screen. See instruction 8xy3 for more information on XOR, and section 2.4, Display, 
+for more information on the Chip-8 screen and sprites.*/
 class InsDRW implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		byte vx = ParserFunctions.GetX(instruction);
@@ -333,9 +368,44 @@ class InsDRW implements InstructionRun {
 		}
 		
 		//TODO set 0xf register???????
+		byte collision = setSprite(cpu, vx, vy, sprites, count);
+		cpu.m_register[0xf] = collision;
 		
 		cpu.m_display.print();
 		return false; 
+	}
+	private byte setByteAndDetectCollision(Cpu cpu, byte index, byte value){
+		byte collision = 0;
+		value = (byte)(((value * 0x0802 & 0x22110) | (value * 0x8020 & 0x88440)) * 0x10101 >> 16); 
+		byte originValue = cpu.m_display.getScreen(index);
+		collision = (originValue & value) > 0 ? (byte)1 : (byte)0;
+		cpu.m_display.setScreen(index, (byte)(originValue^value));
+		return collision;
+	}
+	
+	private byte setSprite(Cpu cpu, byte vx, byte vy, byte[]sprites, byte count){
+		byte collision = 0;
+		byte bytePos = (byte)(vx / 8);
+		byte bitPos = (byte)(vx % 8);
+
+		while (bytePos > 8)
+			bytePos -= 8;
+
+		for (byte spriteRow = 0; spriteRow < count; spriteRow++){
+			byte row = (byte)(vy + spriteRow);
+			// Wrap around from top
+			while(row > 31)
+				row -= 32;
+
+			if(bitPos > 0) {
+			    collision = setByteAndDetectCollision(cpu, (byte)(row * 8 + bytePos), (byte)(sprites[spriteRow] >> bitPos));
+				byte byteToSet = (bytePos + 1 < 8) ? (byte)(bytePos + 1) : 0; 
+				collision |= setByteAndDetectCollision(cpu, (byte)(row * 8 + byteToSet), (byte)(sprites[spriteRow] << (8 - bitPos)));
+			} else {
+				collision = setByteAndDetectCollision(cpu, (byte)(row * 8 + bytePos), sprites[spriteRow]);
+			}
+		}
+		return collision;
 	}
 }
 /*
@@ -384,17 +454,97 @@ class InsSKP implements InstructionRun {
  * FX65	Fills V0 to VX with values from memory starting at address I.[4]
  */
 class InsLDS implements InstructionRun {
+	
+	static byte SPRITE_SIZE = 5;//These sprites are 5 bytes long.
+	
 	public boolean onRun(Cpu cpu, char instruction){
 		byte vx = ParserFunctions.GetX(instruction);
 		byte value = ParserFunctions.GetValue(instruction);
 		byte regXValue = cpu.m_register[vx];
+		char address = cpu.m_I;
 		switch (value){
+		/*
+		Fx07 - LD Vx, DT
+		Set Vx = delay timer value.
+
+		The value of DT is placed into Vx.
+		*/
 		case (byte)0x07:
 			cpu.m_delayTimer.set(regXValue);
 			break;
+	    /*Fx0A - LD Vx, K
+		Wait for a key press, store the value of the key in Vx.
+
+		All execution stops until a key is pressed, then the value of that key is stored in Vx.
+		*/
 		case (byte)0x0A:
 			cpu.m_register[vx] = cpu.m_keyBoard.waitForValue();
 		    break;
+		/*
+		 * Fx15 - LD DT, Vx
+		Set delay timer = Vx.
+
+	    DT is set equal to the value of Vx.*/
+		case (byte)0x15:
+			cpu.m_delayTimer.set(regXValue);
+			break;
+		/*Fx18 - LD ST, Vx
+		Set sound timer = Vx.
+
+		ST is set equal to the value of Vx.*/
+		case (byte)0x18:
+			cpu.m_soundTimer.set(regXValue);
+			break;
+		/*Fx1E - ADD I, Vx
+		Set I = I + Vx.
+
+		The values of I and Vx are added, and the results are stored in I.*/
+		case (byte)0x1e:
+			cpu.m_I += regXValue;
+			break;
+		/*Fx29 - LD F, Vx
+		Set I = location of sprite for digit Vx.
+
+		The value of I is set to the location for the hexadecimal sprite corresponding to 
+		the value of Vx. See section 2.4, Display, for more information on the Chip-8 
+		hexadecimal font.*/
+		case (byte)0x29:
+			cpu.m_I = (char)(regXValue * SPRITE_SIZE);
+			break;
+		/*Fx33 - LD B, Vx
+		Store BCD representation of Vx in memory locations I, I+1, and I+2.
+
+		The interpreter takes the decimal value of Vx, and places the hundreds
+	    digit in memory at location in I, the tens digit at location I+1, and 
+	    the ones digit at location I+2.*/
+		case (byte)0x33:
+			byte hundreds = (byte)(regXValue/100);
+		    byte tens     = (byte)((regXValue-(regXValue-hundreds*100))/10);
+		    byte ones     = (byte)(regXValue-hundreds*100-tens*10);
+		    cpu.m_memory.setValue(cpu.m_I, hundreds);
+		    cpu.m_memory.setValue((char)(cpu.m_I+1), tens);
+		    cpu.m_memory.setValue((char)(cpu.m_I+2), ones);
+			break;
+		/*
+		 * Fx55 - LD [I], Vx
+		Store registers V0 through Vx in memory starting at location I.
+
+		The interpreter copies the values of registers V0 through Vx into memory,
+		starting at the address in I.*/
+		case (byte)0x55:			
+			for (int i = 0 ; i< regXValue; i++){
+				cpu.m_memory.setValue((char)(address+i), cpu.m_register[i]);
+			}
+			break;
+		case (byte)0x65:
+		    for(int i = 0; i < regXValue; i++){
+		    	cpu.m_register[i] = cpu.m_memory.getValue((char)(address+i));
+		    }
+			break;
+		default:
+			System.out.printf("Error: InsLDS instruction 0x%x\n", (int)instruction);
+			cpu.printRegister();
+			return true;
 		}
 		return false; 
 	}

@@ -1,4 +1,4 @@
-package chip8;
+package Chip8;
 
 public class ParseResult {
 	public int OpCode;

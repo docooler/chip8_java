@@ -1,4 +1,4 @@
-package chip8;
+package Chip8;
 
 public class DelayTimer implements ITimer {
 	private byte m_value;

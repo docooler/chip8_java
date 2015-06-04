@@ -1,4 +1,4 @@
-package chip8;
+package Chip8;
 
 public class ParserFunctions {
 	public static byte GetY(char instruction)
