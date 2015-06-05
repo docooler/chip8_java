@@ -50,10 +50,12 @@ public class UI extends Display implements KeyListener {
     }
     
 	public  void print(){
-		super.print();
+		
 		System.out.println("UI print");
+		super.print();
 		for (int i = 0; i < SCREEN_HEIGH; i++){
 			m_convas.getGraphics().drawString(m_content[i], 50, 50+i*8);
+			
 		}
 		//drawTest();
 	}
