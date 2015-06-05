@@ -4,13 +4,14 @@ public class Machine {
 	Memory m_memory;
 	Cpu    m_cpu;
 	IDisplay m_display;
-	IKeyBoard m_keyboard;
+	KeyBoard m_keyboard;
 	Load m_load; 
 	
 	public Machine(){
-		m_display = new UI();
-		m_memory = new Memory();
 		m_keyboard = new KeyBoard();
+		m_display = new UI(m_keyboard);
+		m_memory = new Memory();
+		
 		m_load    = new Load(); 
 		
 		m_cpu = new Cpu(m_memory, m_display, m_keyboard);

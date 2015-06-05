@@ -2,10 +2,13 @@ package GameEngine;
 
 import Chip8.IKeyBoard;
 
+
 public class KeyBoard implements IKeyBoard {
 	private byte m_value;
+	private char m_key;
 	public KeyBoard(){
 		m_value = (byte)0xff;
+		m_key = 0xff;
 	}
 	//this function need implements 
 	/*Fx0A - LD Vx, K
@@ -13,22 +16,27 @@ public class KeyBoard implements IKeyBoard {
 
     All execution stops until a key is pressed, then the value of that key is stored in Vx.*/
 	public byte waitForValue(){
-		char inputKey = 0xff;
 		byte value = (byte)0xff;
 		
-		while(inputKey == 0xff){
-			try{
-				System.out.println("keyboard waitForValue");
-				inputKey = (char)System.in.read();
-				}catch(Exception e1){
-					e1.printStackTrace();
-				    return (byte)0xff;	
-				}
-			
-			value = convertCharToValue(inputKey);
+		while(true){
+			System.out.println("please input key");
+			while(m_key == 0xff);//wait key pressed
+			value = convertCharToValue(m_key);
+			if (m_value != 0xff){
+				break;
+			}
 		}
+		setKey((char)0xff);
 		m_value = value;
-		return value;
+		return m_value;
+	}
+	
+	public synchronized void setKey(char value){
+		m_key = value;
+	}
+	
+	public void keyPressed(char value){
+		setKey(value);
 	}
 	
 	private byte convertCharToValue(char key){
