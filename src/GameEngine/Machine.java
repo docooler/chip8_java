@@ -8,8 +8,8 @@ public class Machine {
 	Load m_load; 
 	
 	public Machine(){
+		m_display = new UI();
 		m_memory = new Memory();
-		m_display = new Display();
 		m_keyboard = new KeyBoard();
 		m_load    = new Load(); 
 		

@@ -373,7 +373,7 @@ class InsDRW implements InstructionRun {
 			sprites[i] = cpu.m_memory.getValue((char)(cpu.m_I+i));
 		}
 		
-		//TODO set 0xf register???????
+		
 		byte collision = setSprite(cpu, vx, vy, sprites, count);
 		cpu.m_register[0xf] = collision;
 		

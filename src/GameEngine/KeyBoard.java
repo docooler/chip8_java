@@ -18,6 +18,7 @@ public class KeyBoard implements IKeyBoard {
 		
 		while(inputKey == 0xff){
 			try{
+				System.out.println("keyboard waitForValue");
 				inputKey = (char)System.in.read();
 				}catch(Exception e1){
 					e1.printStackTrace();
