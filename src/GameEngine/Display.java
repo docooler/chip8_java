@@ -19,7 +19,7 @@ public class Display implements IDisplay {
 	}
 	public void setScreen(int index, byte value)
 	{
-		System.out.printf("setScreen index : %d, value: %d\n", index, value);
+//		System.out.printf("setScreen index : %d, value: %d\n", index, value);
 		m_screen[index] = value;
 	}
 	
@@ -86,56 +86,60 @@ public class Display implements IDisplay {
 		m_memoryBuffer[42] = (byte)0xF0;    
 		m_memoryBuffer[43] = (byte)0x90;    
 		m_memoryBuffer[44] = (byte)0xF0;    
-//		// 9;		4                           
-//		m_memoryBuffer[45] = (byte)0xF0;    
-//		m_memoryBuffer[46] = (byte)0x90;    
-//		m_memoryBuffer[47] = (byte)0xF0;    
-//		m_memoryBuffer[48] = (byte)0x10;    
-//		m_memoryBuffer[49] = (byte)0xF0;    
-//		// A;                               
-//		m_memoryBuffer[50] = (byte)0xF0;    
-//		m_memoryBuffer[51] = (byte)0x90;    
-//		m_memoryBuffer[52] = (byte)0xF0;    
-//		m_memoryBuffer[53] = (byte)0x90;    
-//		m_memoryBuffer[54] = (byte)0x90;    
-//	    // B;		5                       
-//		m_memoryBuffer[55] = (byte)0xE0;    
-//		m_memoryBuffer[56] = (byte)0x90;    
-//		m_memoryBuffer[57] = (byte)0xE0;    
-//		m_memoryBuffer[58] = (byte)0x90;    
-//		m_memoryBuffer[59] = (byte)0xE0;    
-//		// C;                               
-//		m_memoryBuffer[60] = (byte)0xF0;    
-//		m_memoryBuffer[61] = (byte)0x80;    
-//		m_memoryBuffer[62] = (byte)0x80;    
-//		m_memoryBuffer[63] = (byte)0x80;    
-//		m_memoryBuffer[64] = (byte)0xF0;    
-//		// D;		6                           
-//		m_memoryBuffer[65] = (byte)0xE0;    
-//		m_memoryBuffer[66] = (byte)0x90;    
-//		m_memoryBuffer[67] = (byte)0x90;    
-//		m_memoryBuffer[68] = (byte)0x90;    
-//		m_memoryBuffer[69] = (byte)0xE0;    
-//		// E;                               
-//		m_memoryBuffer[70] = (byte)0xF0;    
-//		m_memoryBuffer[71] = (byte)0x80;    
-//		m_memoryBuffer[72] = (byte)0xF0;    
-//		m_memoryBuffer[73] = (byte)0x80;    
-//		m_memoryBuffer[74] = (byte)0xF0;    
-//		// F;		                            
-//		m_memoryBuffer[75] = (byte)0xF0;    
-//		m_memoryBuffer[76] = (byte)0x80;    
-//		m_memoryBuffer[77] = (byte)0xF0;    
-//		m_memoryBuffer[78] = (byte)0x80;    
-//		m_memoryBuffer[79] = (byte)0x80; 
+		// 9;		4                           
+		m_memoryBuffer[45] = (byte)0xF0;    
+		m_memoryBuffer[46] = (byte)0x90;    
+		m_memoryBuffer[47] = (byte)0xF0;    
+		m_memoryBuffer[48] = (byte)0x10;    
+		m_memoryBuffer[49] = (byte)0xF0;    
+		// A;                               
+		m_memoryBuffer[50] = (byte)0xF0;    
+		m_memoryBuffer[51] = (byte)0x90;    
+		m_memoryBuffer[52] = (byte)0xF0;    
+		m_memoryBuffer[53] = (byte)0x90;    
+		m_memoryBuffer[54] = (byte)0x90;    
+	    // B;		5                       
+		m_memoryBuffer[55] = (byte)0xE0;    
+		m_memoryBuffer[56] = (byte)0x90;    
+		m_memoryBuffer[57] = (byte)0xE0;    
+		m_memoryBuffer[58] = (byte)0x90;    
+		m_memoryBuffer[59] = (byte)0xE0;    
+		// C;                               
+		m_memoryBuffer[60] = (byte)0xF0;    
+		m_memoryBuffer[61] = (byte)0x80;    
+		m_memoryBuffer[62] = (byte)0x80;    
+		m_memoryBuffer[63] = (byte)0x80;    
+		m_memoryBuffer[64] = (byte)0xF0;    
+		// D;		6                           
+		m_memoryBuffer[65] = (byte)0xE0;    
+		m_memoryBuffer[66] = (byte)0x90;    
+		m_memoryBuffer[67] = (byte)0x90;    
+		m_memoryBuffer[68] = (byte)0x90;    
+		m_memoryBuffer[69] = (byte)0xE0;    
+		// E;                               
+		m_memoryBuffer[70] = (byte)0xF0;    
+		m_memoryBuffer[71] = (byte)0x80;    
+		m_memoryBuffer[72] = (byte)0xF0;    
+		m_memoryBuffer[73] = (byte)0x80;    
+		m_memoryBuffer[74] = (byte)0xF0;    
+		// F;		                            
+		m_memoryBuffer[75] = (byte)0xF0;    
+		m_memoryBuffer[76] = (byte)0x80;    
+		m_memoryBuffer[77] = (byte)0xF0;    
+		m_memoryBuffer[78] = (byte)0x80;    
+		m_memoryBuffer[79] = (byte)0x80; 
 		
 		m_screenTest = new byte[256];
-		for (int i = 0; i < 8; i++){
+		for (int i = 0; i < 16; i++){
 			for (int j=0; j<5; j++){
 				m_screenTest[i + j*8] = m_memoryBuffer[i*5+j]; 
 			}
 		}
 		
+	}
+	
+	public void drawOneByte(int x, int y, int bit, int value){
+		return;
 	}
 	public void print()
 	{
@@ -143,6 +147,7 @@ public class Display implements IDisplay {
 			m_content[y] = ""; 
 			for(int x = 0; x < SCREEN_WITH; x++){
 				int screenIndex = y*SCREEN_WITH + x;
+				//this is for test draw function;
 				byte value = m_screenTest[screenIndex];//TODO FOR DEBUG
 				//byte value = m_screen[screenIndex];
 				int iValue = Byte.toUnsignedInt(value);
@@ -151,9 +156,9 @@ public class Display implements IDisplay {
 					flag >>= 1;
 //					System.out.printf("flag : %d", flag);
 					if((flag&iValue)>0){
-						m_content[y] +=  "**";
+						drawOneByte(x*8, y, i, 1);
 					}else{
-						m_content[y] += "   ";
+						drawOneByte(x*8, y, i, 0);
 					}
 				}
 				
@@ -164,7 +169,6 @@ public class Display implements IDisplay {
 		for (int i = 0; i< SCREEN_SIZE; i++){
 			m_screen[i] = 0;
 		}
-		print();
 	}
 
 }

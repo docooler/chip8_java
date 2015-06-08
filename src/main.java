@@ -18,6 +18,12 @@ public class main {
 		if(debug){
 			machine.debug();
 		}
+//		try {
+//			Thread.sleep(50);
+//		}catch(Exception e1){
+//			
+//		}
+		
 		machine.run();
 		System.out.println(result);
 		
