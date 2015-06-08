@@ -18,9 +18,10 @@ public class UI extends Display implements KeyListener  {
 	int [][] map = new int [64][32];
     KeyBoard m_keyboard;
     MyDrawP m_drawp;
+    JFrame frame;
 
 	public UI(KeyBoard keyboard)  {
-		 JFrame frame = new JFrame();
+		 frame = new JFrame();
 		 JMenuBar menu = new JMenuBar();
 	     frame.setJMenuBar(menu);
 	     JMenu game = new JMenu("”Œœ∑");
@@ -32,20 +33,39 @@ public class UI extends Display implements KeyListener  {
 	     JMenuItem about = help.add("πÿ”⁄");
 	     menu.add(game);
 	     menu.add(help);
-	     
+	}
 	
-	     MyDrawP m_drawp = new MyDrawP();
-	     frame.getContentPane().add(m_drawp);
-	     frame.add(m_drawp);
-	     frame.setLocationRelativeTo(null);
-	     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	     frame.setSize(640,600);
-	     frame.setTitle("GameBoy Chip8");
-	        // frame.setUndecorated(true);
-	     frame.setVisible(true);
-	     frame.setResizable(false);
-		 
-		 
+	public void alive(){
+		AllRun run = new AllRun(this);
+		run.start();
+	}
+	
+	class AllRun extends Thread {
+		UI m_ui;
+		public AllRun(UI ui){
+			m_ui = ui;
+		}
+		public void run(){
+			  m_ui.m_drawp = new MyDrawP();
+			  m_ui.frame.getContentPane().add(m_drawp);
+			  m_ui.frame.add(m_drawp);
+//			     frame.setLocationRelativeTo(null);
+			  m_ui.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			  m_ui.frame.setSize(640,600);
+			  m_ui.frame.setTitle("GameBoy Chip8");
+			        // frame.setUndecorated(true);
+			  m_ui.frame.setVisible(true);
+			  m_ui.frame.setResizable(false);
+			while(true){
+				try {
+					Thread.sleep(50000);
+					System.out.println("All run system.");
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
     class MyDrawP extends JPanel {
@@ -53,6 +73,8 @@ public class UI extends Display implements KeyListener  {
     		System.out.println("call MyDrawP create function");
     	}
     	public void paintComponent (Graphics g){
+    		super.paintComponent(g);
+    		
     		for (int x=0; x<MAX_X; x++){
     			for (int y=0; y<MAX_Y; y++){
     				if (map[x][y] == 1){
