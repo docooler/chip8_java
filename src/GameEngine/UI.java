@@ -69,6 +69,8 @@ public class UI extends Display implements KeyListener  {
 	}
 	
     class MyDrawP extends JPanel {
+    	 int SIZE = 10;
+    	
     	public MyDrawP(){
     		System.out.println("call MyDrawP create function");
     	}
@@ -77,10 +79,14 @@ public class UI extends Display implements KeyListener  {
     		
     		for (int x=0; x<MAX_X; x++){
     			for (int y=0; y<MAX_Y; y++){
+    				
+    				g.drawRect(x*SIZE, y*SIZE, SIZE, SIZE);
     				if (map[x][y] == 1){
     					g.setColor(Color.blue);
-    					g.drawRect(x*10, y*10, 10, 10);
-    					g.fillRect(x*10, y*10, 10, 10);
+    					g.fillRect(x*SIZE, y*SIZE, SIZE, SIZE);
+    				}else{
+    					g.setColor(Color.white);
+    					g.fillRect(x*SIZE, y*SIZE, SIZE, SIZE);
     				}
     			}
     		}
@@ -101,6 +107,9 @@ public class UI extends Display implements KeyListener  {
     	m_drawp.repaint();
     }
 	public void drawOneByte(int x, int y, int bit, int value){
+		if (y>= 5 && value == 1){
+			System.out.printf("dfdopfdspofx:%d, y:%d\n",x,y);
+		}
 		map[x+bit][y] = value;
 		return;
 	}

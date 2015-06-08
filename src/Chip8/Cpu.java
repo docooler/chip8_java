@@ -126,7 +126,7 @@ public class Cpu {
 		char instruction = (char)((cHi&0xff) << 8);
 		instruction |= cLo;
 		
-		System.out.printf("m_PC : 0x%4x, instruction : 0x%4x\n", m_PC-2, (int)instruction);
+//		System.out.printf("m_PC : 0x%4x, instruction : 0x%4x\n", m_PC-2, (int)instruction);
 		return instruction;
 	}
 }
