@@ -501,7 +501,9 @@ class InsDRW implements InstructionRun {
 		byte [] sprites = new byte[count];
 		for(int i= 0; i< count; i++){
 			sprites[i] = cpu.m_memory.getValue((char)(cpu.m_I+i));
+			System.out.printf("i:%d, value: %x\n", i, sprites[i]);
 		}
+
 		
 		byte collision = setSprite(cpu, Vx, Vy, sprites, count);
 		cpu.m_register[0xf] = collision;
@@ -523,6 +525,29 @@ class InsDRW implements InstructionRun {
 |(0,31)	(63,31)|
 ----------------*/
 	private byte setSprite(Cpu cpu, byte vx, byte vy, byte[]sprites, byte count){
+		byte collision = 0;
+		
+		for (byte spriteRow = 0; spriteRow < count; spriteRow++){
+			byte value = sprites[spriteRow];
+			for (int bit=0; bit<8; bit++){
+				int byteValue = value & (0x80>>bit);
+				if (byteValue != 0){
+					if (cpu.m_display.getScreen(vx+bit, vy+spriteRow) == 1){
+						collision = 1;
+					}
+					cpu.m_display.setScreen(vx+bit, vy+spriteRow, 1);
+				}else {
+					if (vx+bit >= 64 || vy+spriteRow >= 32){
+						break;
+					}
+					cpu.m_display.setScreen(vx+bit, vy+spriteRow, 0);
+				}
+			}
+		}
+		
+		return collision;
+	}
+	private byte setSprite_old(Cpu cpu, byte vx, byte vy, byte[]sprites, byte count){
 		byte collision = 0;
 		byte bytePos = (byte)(vx / 8);
 		byte bitPos = (byte)(vx % 8);

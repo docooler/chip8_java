@@ -144,11 +144,11 @@ public class Display implements IDisplay {
 			for(int x = 0; x < SCREEN_WITH; x++){
 				int screenIndex = y*SCREEN_WITH + x;
 //				this is for test draw function;
-				byte value = m_screenTest[screenIndex];//TODO FOR DEBUg
-				if (screenIndex == 40){
-					System.out.println("hello");
-				}
-				//byte value = m_screen[screenIndex];
+//				byte value = m_screenTest[screenIndex];//TODO FOR DEBUg
+//				if (screenIndex == 40){
+//					System.out.println("hello");
+//				}
+				byte value = m_screen[screenIndex];
 				int iValue = Byte.toUnsignedInt(value);
 				int flag = 0x100;
 				for(int i = 0 ; i < 8; i++){//every byte is 8 bit
@@ -168,6 +168,14 @@ public class Display implements IDisplay {
 		for (int i = 0; i< SCREEN_SIZE; i++){
 			m_screen[i] = 0;
 		}
+	}
+	
+	
+	public byte getScreen(int x, int y){
+		return 0;
+	}
+	public void setScreen(int x, int y, int value){
+		
 	}
 
 }
