@@ -141,7 +141,6 @@ public class Display implements IDisplay {
 	public void print()
 	{
 		for(int y = 0; y < SCREEN_HEIGH; y++){
-			m_content[y] = ""; 
 			for(int x = 0; x < SCREEN_WITH; x++){
 				int screenIndex = y*SCREEN_WITH + x;
 //				this is for test draw function;

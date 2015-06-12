@@ -156,13 +156,24 @@ class InsSYS implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		char address = ParserFunctions.GetAddress(instruction);
 		switch (address){
+		/*00EE - RET
+		 *Return from a subroutine.
+         *
+		 *The interpreter sets the program counter to the address at the top of the stack, then subtracts 1 from the stack pointer.
+		 **/
 		case 0xee:
 			InsRET ret = new InsRET();
 			ret.onRun(cpu, instruction);
 			return false;
+		/*00E0 - CLS
+		 * Clear the display.
+		 */
 		case 0xe0:
 			cpu.m_display.clear();
 			return false;
+		/*	0nnn - SYS addr
+		 *	Jump to a machine code routine at nnn.
+		 */
 		case 0x00://这里应该是任意值的需要在看看
 			return true;
 		default:
@@ -171,7 +182,11 @@ class InsSYS implements InstructionRun {
 	}
 }
 
-/*1NNN	Jumps to address NNN.*/
+
+/*1nnn - JP addr
+ *Jump to location nnn.
+ *
+ *The interpreter sets the program counter to nnn.*/
 
 class InsJP implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
@@ -182,7 +197,9 @@ class InsJP implements InstructionRun {
 
 /*
  * 调用指定函数
- * 2NNN	Calls subroutine at NNN.*/
+ * 2NNN	Calls subroutine at NNN.
+ * The interpreter increments the stack pointer, then puts the current PC on the top of the stack. 
+ * The PC is then set to nnn.*/
 class InsCALL implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		cpu.m_stack.push(cpu.m_PC);
@@ -190,7 +207,12 @@ class InsCALL implements InstructionRun {
 		return false; 
 	}
 }
-/*3XNN	Skips the next instruction if VX equals NN.*/
+/* 3xkk - SE Vx, byte
+ * Skip next instruction if Vx = kk.
+ *
+ * The interpreter compares register Vx to kk, and if they are equal, 
+ * increments the program counter by 2.
+ */
 class InsSE implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		byte opValue = ParserFunctions.GetValue(instruction);
@@ -202,7 +224,13 @@ class InsSE implements InstructionRun {
 		return false; 
 	}
 }
-/*4XNN  Skips the next instruction if VX doesn't equal NN.*/
+/*
+ * 4xkk - SNE Vx, byte
+ * Skip next instruction if Vx != kk.
+ *
+ * The interpreter compares register Vx to kk, and if they are not equal, 
+ * increments the program counter by 2.
+ */
 class InsSNE implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		byte opValue = ParserFunctions.GetValue(instruction);
@@ -215,7 +243,13 @@ class InsSNE implements InstructionRun {
 	}
 }
 
-/*5XY0	Skips the next instruction if VX equals VY.*/
+/*
+ * 5xy0 - SE Vx, Vy
+ * Skip next instruction if Vx = Vy.
+ *
+ * The interpreter compares register Vx to register Vy, and if they are equal, 
+ * increments the program counter by 2.
+ */
 class InsSEV implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		byte vx = ParserFunctions.GetX(instruction);
@@ -228,9 +262,12 @@ class InsSEV implements InstructionRun {
 		return false; 
 	}
 }
-/*6XNN	Sets VX to NN. 
- * 这个函数好像做错了???????
- * 这里好像是做成set nn TO VX了。*/
+/*
+ * 6xkk - LD Vx, byte
+ * Set Vx = kk.
+ *
+ * The interpreter puts the value kk into register Vx.
+ */
 class InsLD implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		byte value = ParserFunctions.GetValue(instruction);
@@ -239,7 +276,12 @@ class InsLD implements InstructionRun {
 		return false; 
 	}
 }
-/*7XNN	Adds NN to VX.*/
+/*
+ *  7xkk - ADD Vx, byte
+ *  Set Vx = Vx + kk.
+ *
+ *  Adds the value kk to the value of register Vx, then stores the result in Vx. 
+ */
 class InsADD implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		byte value = ParserFunctions.GetValue(instruction);
@@ -267,34 +309,97 @@ class InsREG implements InstructionRun {
 		
 		
 		switch (subfunction){
+		/*
+		 * 8xy0 - LD Vx, Vy
+		 * Set Vx = Vy.
+ 		 *
+		 * Stores the value of register Vy in register Vx.
+		 */
 		case 0:
 			cpu.m_register[vx] = cpu.m_register[vy];
 			return false;
+		/*
+		 *	8xy1 - OR Vx, Vy
+		 *	Set Vx = Vx OR Vy.
+         *
+		 *	Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
+		 *  A bitwise OR compares the corrseponding bits from two values, and if either bit is 1,
+		 *  then the same bit in the result is also 1. Otherwise, it is 0. 
+		 */
 		case 1:
 			cpu.m_register[vx] |= cpu.m_register[vy];
 			return false;
+		/*
+		 * 8xy2 - AND Vx, Vy
+		 * Set Vx = Vx AND Vy.
+ 		 *
+		 * Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx.
+		 * A bitwise AND compares the corrseponding bits from two values, and if both bits are 1, 
+		 * then the same bit in the result is also 1. Otherwise, it is 0.
+         */
 		case 2:
 			cpu.m_register[vx] &= cpu.m_register[vy];
 			return false;
+		/*
+		 * 8xy3 - XOR Vx, Vy
+		 * Set Vx = Vx XOR Vy.
+		 *
+		 * Performs a bitwise exclusive OR on the values of Vx and Vy, then stores the result in Vx.
+		 * An exclusive XOR compares the corrseponding bits from two values, and if the bits are not both the same, 
+		 * then the corresponding bit in the result is set to 1. Otherwise, it is 0. */
 		case 3:
 			cpu.m_register[vx] ^= cpu.m_register[vy];
 			return false;
+		/*
+		 * 8xy4 - ADD Vx, Vy
+		 * Set Vx = Vx + Vy, set VF = carry.
+         *
+		 * The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) 
+		 * VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
+		 */
 		case 4:
-			cpu.m_register[0xf] = (byte)((cpu.m_register[vx] + cpu.m_register[vy]) > 0xff ? 1: 0);
-			cpu.m_register[vx] += cpu.m_register[vy];
+			byte valueX = cpu.m_register[vx];
+			byte valueY = cpu.m_register[vy];
+			int  sum = valueX + valueY;
+			cpu.m_register[0xf] = (byte)(sum > 0xff?1:0);
+			cpu.m_register[vx] = (byte)(sum&0xff);
 			return false;
+		/*
+		 * 8xy5 - SUB Vx, Vy
+		 * Set Vx = Vx - Vy, set VF = NOT borrow.
+		 *
+		 * If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+		 */
 		case 5:
 			cpu.m_register[0xf] = (byte)(cpu.m_register[vx] > cpu.m_register[vy] ? 1: 0);
 			cpu.m_register[vx] -= cpu.m_register[vy];
 			return false;
+		/*
+		 * 8xy6 - SHR Vx {, Vy}
+		 * Set Vx = Vx SHR 1.
+		 *
+		 * If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
+		 */
 		case 6:
-			cpu.m_register[0xf] = (byte)(cpu.m_register[vx] & (byte)0x01);
+			cpu.m_register[0xf] = (byte)(cpu.m_register[vx] & 0x01);
 			cpu.m_register[vx]  = (byte)(cpu.m_register[vx]>>1);
 			return false;
+		/*
+		 * 8xy7 - SUBN Vx, Vy
+		 * Set Vx = Vy - Vx, set VF = NOT borrow.
+		 *
+		 * If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
+		 */
 		case 7:
 			cpu.m_register[0xf] = (byte)(cpu.m_register[vx] < cpu.m_register[vy] ? 1 : 0);
 			cpu.m_register[vx] = (byte) (cpu.m_register[vy] - cpu.m_register[vx]);
             return false;
+        /*
+         * 8xyE - SHL Vx {, Vy}
+		 * Set Vx = Vx SHL 1.
+		 *
+		 * If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
+		 */
 		case 0x0e:
 			cpu.m_register[0xf] = (byte)(cpu.m_register[vx] >> 7);
 			cpu.m_register[vx] = (byte)(cpu.m_register[vx] << 1);
@@ -305,7 +410,12 @@ class InsREG implements InstructionRun {
         }
 	}
 }
-/*9XY0	Skips the next instruction if VX doesn't equal VY.*/
+/*
+ * 9xy0 - SNE Vx, Vy
+ * Skip next instruction if Vx != Vy.
+ *
+ * The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
+ */
 class InsSNEV implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		byte vx = ParserFunctions.GetX(instruction);
@@ -317,7 +427,12 @@ class InsSNEV implements InstructionRun {
 		return false; 
 	}
 }
-/*ANNN	Sets I to the address NNN.*/
+/*
+ * Annn - LD I, addr
+ * Set I = nnn.
+ *
+ * The value of register I is set to nnn.
+*/
 class InsLDI implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		char address = ParserFunctions.GetAddress(instruction);
@@ -325,7 +440,12 @@ class InsLDI implements InstructionRun {
 		return false; 
 	}
 }
-/*BNNN	Jumps to the address NNN plus V0.*/
+/*
+ * Bnnn - JP V0, addr
+ * Jump to location nnn + V0.
+ *
+ * The program counter is set to nnn plus the value of V0.
+ */
 class InsJPV implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		char address = ParserFunctions.GetAddress(instruction);
@@ -334,7 +454,13 @@ class InsJPV implements InstructionRun {
 		return false; 
 	}
 }
-/*CXNN	Sets VX to a random number, masked by NN.*/
+/*
+ * Cxkk - RND Vx, byte
+ * Set Vx = random byte AND kk.
+ *
+ * The interpreter generates a random number from 0 to 255, which is then ANDed with the value kk. 
+ * The results are stored in Vx. See instruction 8xy2 for more information on AND.
+ */
 class InsRND implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
 		byte value = ParserFunctions.GetValue(instruction);
@@ -342,7 +468,7 @@ class InsRND implements InstructionRun {
 		
 		byte vx = ParserFunctions.GetX(instruction);
 		
-		cpu.m_register[vx] = (byte)(random | value);
+		cpu.m_register[vx] = (byte)(random & value);
 		return false; 
 	}
 }
@@ -364,17 +490,20 @@ the screen. See instruction 8xy3 for more information on XOR, and section 2.4, D
 for more information on the Chip-8 screen and sprites.*/
 class InsDRW implements InstructionRun {
 	public boolean onRun(Cpu cpu, char instruction){
-		byte vx = ParserFunctions.GetX(instruction);
-		byte vy = ParserFunctions.GetY(instruction);
+		byte x = ParserFunctions.GetX(instruction);
+		byte y = ParserFunctions.GetY(instruction);
+		byte Vx = cpu.m_register[x];
+		byte Vy = cpu.m_register[y];
 		byte count = ParserFunctions.GetSubCommand(instruction);
+		System.out.printf("InsDRW Vx: %d, Vy: %d, Count: %d\n", Vx, Vy, count);
+		
 		
 		byte [] sprites = new byte[count];
 		for(int i= 0; i< count; i++){
 			sprites[i] = cpu.m_memory.getValue((char)(cpu.m_I+i));
 		}
 		
-		
-		byte collision = setSprite(cpu, vx, vy, sprites, count);
+		byte collision = setSprite(cpu, Vx, Vy, sprites, count);
 		cpu.m_register[0xf] = collision;
 		
 		cpu.m_display.print();
@@ -388,7 +517,11 @@ class InsDRW implements InstructionRun {
 		cpu.m_display.setScreen(index, (byte)(originValue^value));
 		return collision;
 	}
-	
+	/*
+----------------
+|(0,0)	(63,0) |
+|(0,31)	(63,31)|
+----------------*/
 	private byte setSprite(Cpu cpu, byte vx, byte vy, byte[]sprites, byte count){
 		byte collision = 0;
 		byte bytePos = (byte)(vx / 8);
@@ -424,12 +557,24 @@ class InsSKP implements InstructionRun {
 		byte value = ParserFunctions.GetValue(instruction);
 		byte key = cpu.m_register[vx];
 		switch (value){
+		/*
+		 * Ex9E - SKP Vx
+		 * Skip next instruction if key with the value of Vx is pressed.
+		 *
+		 * Checks the keyboard, and if the key corresponding to the value of Vx is currently in the down position,
+		 * PC is increased by 2.
+		 */
 		case (byte)0x9e:
 			if (cpu.m_keyBoard.getValue(key)){
 				cpu.m_PC += 2;
 			}
 			break;
-			
+		/*
+		 * ExA1 - SKNP Vx
+		 * Skip next instruction if key with the value of Vx is not pressed.
+		 *
+		 * Checks the keyboard, and if the key corresponding to the value of Vx is currently in the up position, 
+		 * PC is increased by 2.*/
 		case (byte)0xA1:
 			if (!cpu.m_keyBoard.getValue(key)){
 				cpu.m_PC += 2;
@@ -437,7 +582,7 @@ class InsSKP implements InstructionRun {
 			break;
 	     default :
 	    	 System.out.printf("Error worong instruction %d", instruction);
-	    	 break;
+	    	 return true;
 		}
 		return false; 
 	}
@@ -476,7 +621,8 @@ class InsLDS implements InstructionRun {
 		The value of DT is placed into Vx.
 		*/
 		case (byte)0x07:
-			cpu.m_delayTimer.set(regXValue);
+			//cpu.m_delayTimer.set(regXValue);
+			cpu.m_register[vx] = cpu.m_delayTimer.get();
 			break;
 	    /*Fx0A - LD Vx, K
 		Wait for a key press, store the value of the key in Vx.

@@ -9,7 +9,7 @@ public class main {
 			System.out.println("Error : init");
 			return;
 		}
-		result = machine.loadGame("PONG");
+		result = machine.loadGame("PONG2");
 		if (result == false){
 			System.out.println("Error : loadGame");
 			return;
