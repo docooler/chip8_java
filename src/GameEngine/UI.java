@@ -57,6 +57,8 @@ public class UI extends Display implements KeyListener  {
 			  m_ui.frame.setVisible(true);
 			  m_ui.frame.setResizable(false);
 			while(true){
+				//we just keep this tread alive. so we can keep the drawp instance. if
+				//this thread finished the drawp will be release. so I write here so urgly.
 				try {
 					Thread.sleep(50000);
 					System.out.println("All run system.");
