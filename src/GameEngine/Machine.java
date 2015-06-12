@@ -45,6 +45,12 @@ public class Machine {
 				System.out.println("System quit");
 				break;
 			}
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 //			if (testCount == 100){
 //				System.out.println("run 100 times quit");
 //				return;
